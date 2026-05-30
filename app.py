@@ -242,7 +242,7 @@ HTML = """
   <div class="header">
     <div class="status-dot"></div>
     <div>
-      <div class="title">AWS ECS Fargate</div>
+      <div class="title">AWS ECS Far</div>
       <div class="big-label">Node Info</div>
     </div>
     <div class="az-badge">{{ az }}</div>
@@ -323,3 +323,5 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+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l
+
