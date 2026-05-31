@@ -103,7 +103,7 @@ HTML = """
     <div class="info-row">
       <div class="icon">📦</div>
       <div class="info-content">
-        <div class="info-label">Container Hostname_rajkumar</div>
+        <div class="info-label">Container Hostname_Rajkumar_Lalwani</div>
         <div class="info-value green">{{ hostname }}</div>
       </div>
     </div>
