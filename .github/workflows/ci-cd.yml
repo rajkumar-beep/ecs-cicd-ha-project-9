@@ -1,4 +1,4 @@
-name: CI — Build & Push Docker Image
+name: CI/CD — Build, Push & Deploy to ECS
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  build-and-push:
-    name: Build & Push to Docker Hub
+  build-and-deploy:
+    name: Build, Push & Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +37,30 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/ecs-ha-app:${{ steps.tag.outputs.TAG }}
           docker push ${{ secrets.DOCKER_USERNAME }}/ecs-ha-app:latest
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Update ECS Task Definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition-arn: ${{ secrets.ECS_TASK_DEFINITION_ARN }}
+          container-name: ecs-ha-app
+          image: ${{ secrets.DOCKER_USERNAME }}/ecs-ha-app:${{ steps.tag.outputs.TAG }}
+
+      - name: Deploy to ECS Service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ secrets.ECS_SERVICE_NAME }}
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
+
       - name: Print Success
         run: |
-          echo "✅ Image pushed: ${{ secrets.DOCKER_USERNAME }}/ecs-ha-app:${{ steps.tag.outputs.TAG }}"
+          echo "✅ Deployed: ${{ secrets.DOCKER_USERNAME }}/ecs-ha-app:${{ steps.tag.outputs.TAG }}"
+          echo "🚀 ECS Service updated successfully"
