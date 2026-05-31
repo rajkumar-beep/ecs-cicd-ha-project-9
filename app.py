@@ -1,20 +1,37 @@
-from flask import Flask, render_template_string, request
+from flask import Flask, render_template_string
 import os
 import socket
 import datetime
+import urllib.request
+import json
 
 app = Flask(__name__)
 
-def get_private_ip():
+def get_container_info():
+    ip = "unavailable"
+    az = os.environ.get("AZ", "unknown")
+
     try:
-        # Connect to external address to find local IP (doesn't send data)
+        # UDP trick for private IP
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
         s.close()
-        return ip
     except:
-        return "unavailable"
+        pass
+
+    try:
+        # Fetch real AZ from ECS metadata
+        metadata_uri = os.environ.get("ECS_CONTAINER_METADATA_URI_V4") or \
+                       os.environ.get("ECS_CONTAINER_METADATA_URI")
+        if metadata_uri:
+            with urllib.request.urlopen(f"{metadata_uri}/task", timeout=2) as r:
+                data = json.loads(r.read())
+                az = data.get("AvailabilityZone", az)
+    except:
+        pass
+
+    return ip, az
 
 HTML = """
 <!DOCTYPE html>
@@ -50,7 +67,7 @@ HTML = """
   .divider { height:1px; background:var(--border); margin:0 0 28px; }
   .info-grid { display:grid; gap:14px; }
   .info-row { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:10px; transition:border-color 0.2s; animation:slideUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
-  .info-row:nth-child(1){animation-delay:0.1s} .info-row:nth-child(2){animation-delay:0.15s} .info-row:nth-child(3){animation-delay:0.2s} .info-row:nth-child(4){animation-delay:0.25s} .info-row:nth-child(5){animation-delay:0.3s} .info-row:nth-child(6){animation-delay:0.35s}
+  .info-row:nth-child(1){animation-delay:0.1s} .info-row:nth-child(2){animation-delay:0.15s} .info-row:nth-child(3){animation-delay:0.2s} .info-row:nth-child(4){animation-delay:0.25s} .info-row:nth-child(5){animation-delay:0.3s}
   .info-row:hover { border-color:rgba(0,229,255,0.2); }
   .icon { font-size:16px; margin-top:1px; flex-shrink:0; }
   .info-content { flex:1; }
@@ -123,11 +140,12 @@ HTML = """
 
 @app.route("/")
 def home():
+    task_ip, az = get_container_info()
     return render_template_string(HTML,
-        az        = os.environ.get("AZ", "ap-south-1a"),
+        az        = az,
         hostname  = socket.gethostname(),
-        task_ip   = get_private_ip(),
-        version   = os.environ.get("APP_VERSION_Rajkumar", "v1.0.0"),
+        task_ip   = task_ip,
+        version   = os.environ.get("APP_VERSION", "v1.0.0"),
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     )
 
