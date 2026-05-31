@@ -127,7 +127,7 @@ def home():
         az        = os.environ.get("AZ", "ap-south-1a"),
         hostname  = socket.gethostname(),
         task_ip   = get_private_ip(),
-        version   = os.environ.get("APP_VERSION", "v1.0.0"),
+        version   = os.environ.get("APP_VERSION_Rajkumar", "v1.0.0"),
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     )
 
