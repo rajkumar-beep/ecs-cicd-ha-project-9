@@ -103,7 +103,7 @@ HTML = """
     <div class="info-row">
       <div class="icon">📦</div>
       <div class="info-content">
-        <div class="info-label">Container Hostname</div>
+        <div class="info-label">Container Hostname_rajkumar</div>
         <div class="info-value green">{{ hostname }}</div>
       </div>
     </div>
@@ -145,7 +145,7 @@ def home():
         az        = az,
         hostname  = socket.gethostname(),
         task_ip   = task_ip,
-        version   = os.environ.get("APP_VERSION_ByRajkumar", "v1.0.0"),
+        version   = os.environ.get("APP_VERSION", "v1.0.0"),
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     )
 
