@@ -1,25 +1,8 @@
-name: CI/CD — Build, Push & Deploy to ECS
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build-and-deploy:
-    name: Build, Push & Deploy
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set Image Tag
-        id: tag
-        run: echo "TAG=v1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+To https://github.com/rajkumar-beep/ecs-cicd-ha-project-9.git
+   ee87c47..d33f010  main -> main
+test@test-VirtualBox:~/ecs-cicd-ha-project-9$ cd .github/workflows/
+test@test-VirtualBox:~/ecs-cicd-ha-project-9/.github/workflows$ nano ci-cd.yml
+  GNU nano 6.2                                                                                         ci-cd.yml *
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -62,5 +45,5 @@ jobs:
 
       - name: Print Success
         run: |
-          echo "✅ Deployed: ${{ secrets.DOCKER_USERNAME }}/ecs-ha-app:${{ steps.tag.outputs.TAG }}"
-          echo "🚀 ECS Service updated successfully"
+          echo "✅ Deployed: ${{ s
+
